@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ContentEntry } from "@/lib/content";
 
 type Props = {
@@ -58,12 +59,22 @@ export default function PrescriptionCard({ entry, reason, index }: Props) {
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-0.5">
-        <span
-          className="text-[0.58rem] text-[var(--ink-faded)] tracking-wider"
-          style={{ fontFamily: "var(--type)" }}
-        >
-          Uncle Sam
-        </span>
+        <div className="flex items-center gap-2">
+          <Image
+            src="/sam-avatar.png"
+            alt="Sam Parr"
+            width={20}
+            height={20}
+            className="rounded-full"
+            style={{ filter: "sepia(0.15) contrast(1.05)", objectFit: "cover" }}
+          />
+          <span
+            className="text-[0.58rem] text-[var(--ink-faded)] tracking-wider"
+            style={{ fontFamily: "var(--type)" }}
+          >
+            Sam Parr
+          </span>
+        </div>
         <a
           href={entry.source_url}
           target="_blank"

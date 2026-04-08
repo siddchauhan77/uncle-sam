@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { getEntriesByIds } from "@/lib/content";
 import type { Archetype } from "@/lib/archetypes";
 import EmailCapture from "@/components/EmailCapture";
@@ -45,6 +46,14 @@ export default function ArchetypeResult({ archetype, onRetake }: Props) {
             {archetype.tagline}
           </p>
         </div>
+        <Image
+          src="/sam-avatar.png"
+          alt="Sam Parr"
+          width={44}
+          height={62}
+          className="object-cover shrink-0 mt-1"
+          style={{ filter: "sepia(0.1)", boxShadow: "2px 2px 0 var(--ink-ghost)" }}
+        />
       </div>
 
       {/* ── Diagnosis ── */}

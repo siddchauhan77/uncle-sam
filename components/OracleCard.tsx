@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import type { ContentEntry } from "@/lib/content";
 
 type Props = {
@@ -120,12 +121,22 @@ export default function OracleCard({ entry, onPullAnother }: Props) {
 
               {/* Footer */}
               <div className="flex items-center justify-between">
-                <span
-                  className="text-[0.6rem] text-[var(--ink-faded)] tracking-wider"
-                  style={{ fontFamily: "var(--type)" }}
-                >
-                  {entry.date}
-                </span>
+                <div className="flex items-center gap-2">
+                  <Image
+                    src="/sam-avatar.png"
+                    alt="Sam Parr"
+                    width={22}
+                    height={22}
+                    className="rounded-full"
+                    style={{ filter: "sepia(0.15) contrast(1.05)", objectFit: "cover" }}
+                  />
+                  <span
+                    className="text-[0.6rem] text-[var(--ink-faded)] tracking-wider"
+                    style={{ fontFamily: "var(--type)" }}
+                  >
+                    {entry.date}
+                  </span>
+                </div>
                 <a
                   href={entry.source_url}
                   target="_blank"

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import ScrollSection from "@/components/ScrollSection";
 import EmailCapture from "@/components/EmailCapture";
@@ -70,14 +71,28 @@ export default function Home() {
 
         {/* CTA block */}
         <ScrollSection delay={240}>
-          <div className="flex flex-col gap-4 max-w-sm mx-auto w-full">
+          <div className="flex flex-col sm:flex-row items-center gap-8 max-w-md mx-auto w-full">
+            <div className="shrink-0">
+              <Image
+                src="/sam-avatar.png"
+                alt="Sam Parr"
+                width={96}
+                height={134}
+                className="object-cover"
+                style={{
+                  filter: "sepia(0.1) contrast(1.06)",
+                  boxShadow: "4px 4px 0 var(--ink-ghost)",
+                }}
+              />
+            </div>
+            <div className="flex flex-col gap-4 flex-1">
             <p
-              className="text-lg italic leading-relaxed text-center"
+              className="text-lg italic leading-relaxed"
               style={{ fontFamily: "var(--body)", color: "var(--ink-mid)" }}
             >
               &ldquo;Real talk on business, money, and why you&apos;re still not building.&rdquo;
             </p>
-            <div className="flex flex-col gap-2 mt-2">
+            <div className="flex flex-col gap-2">
               <Link
                 href="/quiz"
                 className="w-full py-3.5 text-center text-[0.65rem] tracking-[0.2em] uppercase transition-colors hover:opacity-80"
@@ -100,6 +115,7 @@ export default function Home() {
               >
                 Pull a Card
               </Link>
+            </div>
             </div>
           </div>
         </ScrollSection>
@@ -284,6 +300,17 @@ export default function Home() {
       >
         <ScrollSection className="max-w-md mx-auto w-full">
           <div className="rule-double mb-10" style={{ opacity: 0.3 }} />
+          <Image
+            src="/sam-avatar.png"
+            alt="Sam Parr"
+            width={78}
+            height={109}
+            className="mx-auto mb-8 object-cover"
+            style={{
+              filter: "sepia(0.1) contrast(1.06)",
+              boxShadow: "3px 3px 0 var(--dark-card)",
+            }}
+          />
           <p
             className="text-[0.6rem] tracking-[0.35em] uppercase mb-4"
             style={{ fontFamily: "var(--type)", color: "var(--gold)" }}
