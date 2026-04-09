@@ -187,3 +187,63 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* ─────────────────────────────────────────────
+   Deck pull animations — Deal & Discard
+   ───────────────────────────────────────────── */
+
+@keyframes card-discard {
+  0%   { transform: translateX(0) rotate(0deg); opacity: 1; }
+  20%  { transform: translateX(15px) rotate(2deg); opacity: 1; }
+  100% { transform: translateX(140vw) rotate(28deg); opacity: 0; }
+}
+
+@keyframes card-deal {
+  0%   {
+    transform: translate(-150px, -190px) rotate(-22deg) scale(0.55);
+    opacity: 0;
+  }
+  35%  { opacity: 1; }
+  100% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes deck-shuffle {
+  0%, 100% { transform: none; }
+  30%      { transform: translate(2px, -6px) rotate(-2.5deg); }
+  60%      { transform: translate(-2px, 1px) rotate(1.5deg); }
+}
+
+@keyframes deck-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 160, 23, 0.4); }
+  50%      { box-shadow: 0 0 0 6px rgba(212, 160, 23, 0); }
+}
+
+.card-discard-out {
+  animation: card-discard 520ms cubic-bezier(0.4, 0, 0.6, 1) forwards;
+  pointer-events: none;
+}
+
+.card-deal-in {
+  animation: card-deal 620ms cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+}
+
+.deck-shuffling {
+  animation: deck-shuffle 420ms ease-in-out;
+}
+
+.deck-pulse {
+  animation: deck-pulse 2.4s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-discard-out,
+  .card-deal-in,
+  .deck-shuffling,
+  .deck-pulse {
+    animation: none !important;
+  }
+}

@@ -7,22 +7,43 @@ import type { ContentEntry } from "@/lib/content";
 type Props = {
   entry: ContentEntry;
   onPullAnother: () => void;
+  /** When true, plays the deal-in animation on mount and delays auto-flip. */
+  animateEntry?: boolean;
+  /** When true, plays the discard-out animation. The card becomes non-interactive. */
+  exiting?: boolean;
+  /** Disable interactive controls (e.g. while another animation is in flight). */
+  disabled?: boolean;
+  /** Optional slot rendered below the action buttons (used for the quiz CTA). */
+  footerSlot?: React.ReactNode;
 };
 
-export default function OracleCard({ entry, onPullAnother }: Props) {
+export default function OracleCard({
+  entry,
+  onPullAnother,
+  animateEntry = false,
+  exiting = false,
+  disabled = false,
+  footerSlot,
+}: Props) {
   const [flipped, setFlipped] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Auto-flip to reveal after mount
+  // Auto-flip — delay longer when dealing in so the flip happens AFTER the card lands
   useEffect(() => {
-    const t = setTimeout(() => setFlipped(true), 350);
+    if (exiting) return;
+    const delay = animateEntry ? 720 : 350;
+    const t = setTimeout(() => setFlipped(true), delay);
     return () => clearTimeout(t);
-  }, []);
+  }, [animateEntry, exiting]);
 
   async function handleShare() {
     const text = `"${entry.quote}"\n\n— ${entry.source_title}\n\nvia Uncle Sam`;
     if (navigator.share) {
-      await navigator.share({ text });
+      try {
+        await navigator.share({ text });
+      } catch {
+        /* user cancelled — ignore */
+      }
     } else {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -30,14 +51,26 @@ export default function OracleCard({ entry, onPullAnother }: Props) {
     }
   }
 
+  const sceneClass = [
+    "card-scene w-full",
+    exiting ? "card-discard-out" : "",
+    animateEntry && !exiting ? "card-deal-in" : "",
+    !exiting && !disabled ? "cursor-pointer" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <div className="flex flex-col items-center gap-7 w-full max-w-xs mx-auto">
+    <div className="flex flex-col items-center gap-6 w-full max-w-xs mx-auto">
 
       {/* ── Card ── */}
       <div
-        className="card-scene w-full cursor-pointer"
+        className={sceneClass}
         style={{ height: "460px" }}
-        onClick={() => setFlipped((f) => !f)}
+        onClick={() => {
+          if (exiting || disabled) return;
+          setFlipped((f) => !f);
+        }}
       >
         <div className={`card-inner ${flipped ? "flipped" : ""}`}>
 
@@ -47,11 +80,9 @@ export default function OracleCard({ entry, onPullAnother }: Props) {
             style={{ boxShadow: "5px 7px 28px rgba(10,10,10,0.4)" }}
           >
             <div className="card-back-face w-full h-full flex flex-col items-center justify-center p-8 relative">
-              {/* Inset border frames */}
               <div className="absolute inset-3 border border-[var(--gold)] opacity-25 rounded-sm" />
               <div className="absolute inset-[18px] border border-[var(--gold)] opacity-12 rounded-sm" />
 
-              {/* Centre motif */}
               <div className="flex flex-col items-center gap-4 relative z-10">
                 <span className="text-[var(--gold)] opacity-35 text-3xl select-none">$</span>
                 <div className="text-center">
@@ -71,7 +102,6 @@ export default function OracleCard({ entry, onPullAnother }: Props) {
                 <span className="text-[var(--gold)] opacity-35 text-3xl select-none">$</span>
               </div>
 
-              {/* Corner ornaments */}
               {["top-5 left-5", "top-5 right-5", "bottom-5 left-5", "bottom-5 right-5"].map((pos) => (
                 <span
                   key={pos}
@@ -94,12 +124,10 @@ export default function OracleCard({ entry, onPullAnother }: Props) {
             <div className="w-full h-full flex flex-col p-7">
               <div className="rule-double mb-5" />
 
-              {/* Stamp */}
               <div className="mb-4">
                 <span className="stamp">{entry.source_title}</span>
               </div>
 
-              {/* Quote */}
               <blockquote
                 className="flex-1 text-[1.1rem] leading-snug text-[var(--ink)] uppercase"
                 style={{ fontFamily: "var(--display)", letterSpacing: "0.01em" }}
@@ -107,7 +135,6 @@ export default function OracleCard({ entry, onPullAnother }: Props) {
                 &ldquo;{entry.quote}&rdquo;
               </blockquote>
 
-              {/* Excerpt */}
               {entry.full_excerpt && entry.full_excerpt !== entry.quote && (
                 <p
                   className="text-[0.68rem] text-[var(--ink-faded)] leading-relaxed mt-4 line-clamp-3"
@@ -119,7 +146,6 @@ export default function OracleCard({ entry, onPullAnother }: Props) {
 
               <div className="rule-double mt-5 mb-4" />
 
-              {/* Footer */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Image
@@ -154,22 +180,29 @@ export default function OracleCard({ entry, onPullAnother }: Props) {
       </div>
 
       {/* ── Actions ── */}
-      <div className="flex flex-col gap-3 w-full">
-        <button
-          onClick={onPullAnother}
-          className="w-full py-3.5 bg-[var(--ink)] text-[var(--paper)] text-[0.65rem] tracking-[0.18em] uppercase transition-colors hover:bg-[var(--ink-mid)]"
-          style={{ fontFamily: "var(--type)" }}
-        >
-          Pull Another Card
-        </button>
-        <button
-          onClick={handleShare}
-          className="w-full py-3 border border-[var(--ink-ghost)] text-[var(--ink-faded)] text-[0.65rem] tracking-[0.18em] uppercase transition-colors hover:border-[var(--ink)] hover:text-[var(--ink)]"
-          style={{ fontFamily: "var(--type)" }}
-        >
-          {copied ? "Copied to clipboard" : "Share this"}
-        </button>
-      </div>
+      {!exiting && (
+        <>
+          <div className="flex flex-col gap-3 w-full">
+            <button
+              onClick={onPullAnother}
+              disabled={disabled}
+              className="w-full py-3.5 bg-[var(--ink)] text-[var(--paper)] text-[0.65rem] tracking-[0.18em] uppercase transition-colors hover:bg-[var(--ink-mid)] disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ fontFamily: "var(--type)" }}
+            >
+              Pull Another Card
+            </button>
+            <button
+              onClick={handleShare}
+              disabled={disabled}
+              className="w-full py-3 border border-[var(--ink-ghost)] text-[var(--ink-faded)] text-[0.65rem] tracking-[0.18em] uppercase transition-colors hover:border-[var(--ink)] hover:text-[var(--ink)] disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ fontFamily: "var(--type)" }}
+            >
+              {copied ? "Copied to clipboard" : "Share this"}
+            </button>
+          </div>
+          {footerSlot}
+        </>
+      )}
     </div>
   );
 }

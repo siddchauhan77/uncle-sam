@@ -95,25 +95,33 @@ export default function Home() {
             <div className="flex flex-col gap-2">
               <Link
                 href="/quiz"
-                className="w-full py-3.5 text-center text-[0.65rem] tracking-[0.2em] uppercase transition-colors hover:opacity-80"
+                className="w-full py-4 text-center transition-colors hover:opacity-90 group"
                 style={{
                   fontFamily: "var(--type)",
-                  backgroundColor: "var(--ink)",
-                  color: "var(--paper)",
+                  backgroundColor: "var(--gold)",
+                  color: "var(--ink)",
+                  boxShadow: "3px 3px 0 var(--ink)",
                 }}
               >
-                Take the Quiz →
+                <div className="flex flex-col items-center">
+                  <span className="text-[0.7rem] tracking-[0.22em] uppercase font-bold">
+                    ★ Take the Diagnostic →
+                  </span>
+                  <span className="text-[0.55rem] tracking-wider mt-1 opacity-75">
+                    5 Qs · Get your founder archetype
+                  </span>
+                </div>
               </Link>
               <Link
                 href="/oracle"
-                className="w-full py-3 text-center text-[0.65rem] tracking-[0.2em] uppercase border transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]"
+                className="w-full py-3 text-center text-[0.6rem] tracking-[0.2em] uppercase border transition-colors hover:bg-[var(--ink)] hover:text-[var(--paper)]"
                 style={{
                   fontFamily: "var(--type)",
-                  borderColor: "var(--ink)",
-                  color: "var(--ink)",
+                  borderColor: "var(--ink-ghost)",
+                  color: "var(--ink-faded)",
                 }}
               >
-                Pull a Card
+                Or just pull a card
               </Link>
             </div>
             </div>

@@ -8,17 +8,26 @@ import { getArchetype } from "@/lib/archetypes";
 
 type Answers = {
   ideas: string;
-  blocker: string;
-  success: string;
+  blocker: string[];
+  success: string[];
   boring: string;
   situation: string;
 };
 
-const QUESTIONS = [
+type Question = {
+  key: keyof Answers;
+  question: string;
+  type: "choice";
+  multi: boolean;
+  options: { label: string; value: string }[];
+};
+
+const QUESTIONS: Question[] = [
   {
-    key: "ideas" as keyof Answers,
+    key: "ideas",
     question: "How many business ideas do you have right now?",
-    type: "choice" as const,
+    type: "choice",
+    multi: false,
     options: [
       { label: "Zero. I have no ideas.", value: "zero" },
       { label: "1–5. I've got a couple.", value: "one-five" },
@@ -27,9 +36,10 @@ const QUESTIONS = [
     ],
   },
   {
-    key: "blocker" as keyof Answers,
+    key: "blocker",
     question: "Why haven't you started yet?",
-    type: "choice" as const,
+    type: "choice",
+    multi: true,
     options: [
       { label: "Need money / funding", value: "money" },
       { label: "Need more skills first", value: "skills" },
@@ -38,9 +48,10 @@ const QUESTIONS = [
     ],
   },
   {
-    key: "success" as keyof Answers,
+    key: "success",
     question: "What does winning look like to you?",
-    type: "choice" as const,
+    type: "choice",
+    multi: true,
     options: [
       { label: "Freedom — work when I want, where I want", value: "freedom" },
       { label: "Money — a number with commas", value: "money" },
@@ -49,9 +60,10 @@ const QUESTIONS = [
     ],
   },
   {
-    key: "boring" as keyof Answers,
+    key: "boring",
     question: "What's your relationship with boring businesses?",
-    type: "choice" as const,
+    type: "choice",
+    multi: false,
     options: [
       { label: "Boring = bad. I want to build something impressive.", value: "boring-bad" },
       { label: "Boring is fine if it's profitable.", value: "boring-fine" },
@@ -60,9 +72,10 @@ const QUESTIONS = [
     ],
   },
   {
-    key: "situation" as keyof Answers,
+    key: "situation",
     question: "Where are you right now?",
-    type: "choice" as const,
+    type: "choice",
+    multi: false,
     options: [
       { label: "Full-time job, want out", value: "employee" },
       { label: "Student / just graduated", value: "student" },
@@ -72,7 +85,13 @@ const QUESTIONS = [
   },
 ];
 
-const EMPTY: Answers = { ideas: "", blocker: "", success: "", boring: "", situation: "" };
+const EMPTY: Answers = {
+  ideas: "",
+  blocker: [],
+  success: [],
+  boring: "",
+  situation: "",
+};
 
 export default function QuizPage() {
   const [step, setStep] = useState(0);
@@ -80,11 +99,24 @@ export default function QuizPage() {
   const [result, setResult] = useState<ReturnType<typeof getArchetype> | null>(null);
 
   const current = QUESTIONS[step];
-  const currentValue = answers[current?.key];
-  const canAdvance = currentValue.trim().length > 0;
+  const rawValue = answers[current.key];
+  const isMultiValue = Array.isArray(rawValue);
+
+  const canAdvance = isMultiValue
+    ? (rawValue as string[]).length > 0
+    : (rawValue as string).trim().length > 0;
 
   function handleChange(val: string) {
-    setAnswers((a) => ({ ...a, [current.key]: val }));
+    setAnswers((a) => {
+      if (current.multi) {
+        const arr = (a[current.key] as string[]) ?? [];
+        const next = arr.includes(val)
+          ? arr.filter((v) => v !== val)
+          : [...arr, val];
+        return { ...a, [current.key]: next };
+      }
+      return { ...a, [current.key]: val };
+    });
   }
 
   function handleNext() {
@@ -93,6 +125,10 @@ export default function QuizPage() {
     } else {
       setResult(getArchetype(answers));
     }
+  }
+
+  function handleBack() {
+    if (step > 0) setStep((s) => s - 1);
   }
 
   function handleRetake() {
@@ -149,7 +185,7 @@ export default function QuizPage() {
           className="text-[0.62rem] tracking-wider uppercase"
           style={{ fontFamily: "var(--type)", color: "var(--ink-faded)" }}
         >
-          Uncle Sam&apos;s quiz
+          Uncle Sam&apos;s diagnostic
         </span>
       </div>
 
@@ -173,15 +209,17 @@ export default function QuizPage() {
           question={current.question}
           options={current.options}
           type={current.type}
-          value={currentValue}
+          value={isMultiValue ? "" : (rawValue as string)}
+          selectedValues={isMultiValue ? (rawValue as string[]) : []}
+          multi={current.multi}
           onChange={handleChange}
           questionNumber={step + 1}
           total={QUESTIONS.length}
         />
       </div>
 
-      {/* Continue */}
-      <div className="mt-10">
+      {/* Continue + Back */}
+      <div className="mt-10 flex flex-col gap-3">
         <button
           onClick={handleNext}
           disabled={!canAdvance}
@@ -194,6 +232,18 @@ export default function QuizPage() {
         >
           {step < QUESTIONS.length - 1 ? "Continue →" : "Get my prescription"}
         </button>
+        {step > 0 && (
+          <button
+            onClick={handleBack}
+            className="w-full py-2.5 text-[0.6rem] tracking-[0.2em] uppercase transition-colors hover:text-[var(--ink)]"
+            style={{
+              fontFamily: "var(--type)",
+              color: "var(--ink-faded)",
+            }}
+          >
+            ← Previous
+          </button>
+        )}
       </div>
     </main>
   );

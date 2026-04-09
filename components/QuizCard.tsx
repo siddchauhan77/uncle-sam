@@ -10,6 +10,10 @@ type Props = {
   onChange: (val: string) => void;
   questionNumber: number;
   total: number;
+  /** When true, options behave as toggles. The parent owns selectedValues. */
+  multi?: boolean;
+  /** Which options are selected (only used when multi=true). */
+  selectedValues?: string[];
 };
 
 export default function QuizCard({
@@ -20,7 +24,14 @@ export default function QuizCard({
   onChange,
   questionNumber,
   total,
+  multi = false,
+  selectedValues = [],
 }: Props) {
+  const isSelected = (optValue: string) => {
+    if (multi) return selectedValues.includes(optValue);
+    return value === optValue;
+  };
+
   return (
     <div className="flex flex-col gap-7">
 
@@ -37,34 +48,59 @@ export default function QuizCard({
       </div>
 
       {/* Question */}
-      <h2
-        className="text-[1.85rem] font-bold leading-tight text-[var(--ink)] uppercase"
-        style={{ fontFamily: "var(--display)", letterSpacing: "0.01em" }}
-      >
-        {question}
-      </h2>
+      <div className="flex flex-col gap-2">
+        <h2
+          className="text-[1.85rem] font-bold leading-tight text-[var(--ink)] uppercase"
+          style={{ fontFamily: "var(--display)", letterSpacing: "0.01em" }}
+        >
+          {question}
+        </h2>
+        {multi && (
+          <p
+            className="text-[0.6rem] tracking-[0.18em] uppercase"
+            style={{ fontFamily: "var(--type)", color: "var(--gold)" }}
+          >
+            ✦ Pick all that apply
+          </p>
+        )}
+      </div>
 
       {/* Choice options */}
       {type === "choice" && options && (
         <div className="flex flex-col gap-2.5">
-          {options.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => onChange(opt.value)}
-              className={`text-left px-5 py-4 border transition-all duration-150 ${
-                value === opt.value
-                  ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]"
-                  : "border-[var(--ink-ghost)] bg-transparent text-[var(--ink)] hover:border-[var(--ink-faded)]"
-              }`}
-            >
-              <span
-                className="text-sm tracking-wide"
-                style={{ fontFamily: "var(--type)" }}
+          {options.map((opt) => {
+            const selected = isSelected(opt.value);
+            return (
+              <button
+                key={opt.value}
+                onClick={() => onChange(opt.value)}
+                className={`text-left px-5 py-4 border transition-all duration-150 flex items-center gap-3 ${
+                  selected
+                    ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]"
+                    : "border-[var(--ink-ghost)] bg-transparent text-[var(--ink)] hover:border-[var(--ink-faded)]"
+                }`}
               >
-                {opt.label}
-              </span>
-            </button>
-          ))}
+                {multi && (
+                  <span
+                    className={`shrink-0 w-4 h-4 border flex items-center justify-center text-[0.7rem] leading-none ${
+                      selected
+                        ? "border-[var(--paper)] bg-[var(--paper)] text-[var(--ink)]"
+                        : "border-[var(--ink-ghost)]"
+                    }`}
+                    aria-hidden="true"
+                  >
+                    {selected ? "✓" : ""}
+                  </span>
+                )}
+                <span
+                  className="text-sm tracking-wide flex-1"
+                  style={{ fontFamily: "var(--type)" }}
+                >
+                  {opt.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
 

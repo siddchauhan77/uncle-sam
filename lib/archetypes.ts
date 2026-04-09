@@ -156,21 +156,24 @@ export const ARCHETYPES: Record<ArchetypeId, Archetype> = {
 
 type Answers = {
   ideas: string;
-  blocker: string;
-  success: string;
+  /** Multi-select — multiple things can block someone */
+  blocker: string[];
+  /** Multi-select — winning can mean several things at once */
+  success: string[];
   boring: string;
   situation: string;
 };
 
 export function getArchetype(answers: Answers): Archetype {
   const { ideas, blocker, boring, situation } = answers;
+  const blockers = new Set(blocker);
 
-  // Has tons of ideas and no launch → Idea Hoarder
+  // Has tons of ideas → Idea Hoarder
   if (ideas === "lost-count" || ideas === "five-twenty") {
     return ARCHETYPES["idea-hoarder"];
   }
 
-  // Already building with a plan → Almost Operator
+  // Already building → Almost Operator
   if (situation === "building") {
     return ARCHETYPES["almost-operator"];
   }
@@ -180,18 +183,18 @@ export function getArchetype(answers: Answers): Archetype {
     return ARCHETYPES["boring-biz-skeptic"];
   }
 
-  // Needs more info / scared → Overthink-er
-  if (blocker === "skills" || blocker === "right-idea") {
+  // Multiple blockers OR research-paralysis blockers → Overthink-er
+  if (
+    blockers.size >= 3 ||
+    blockers.has("skills") ||
+    blockers.has("right-idea") ||
+    blockers.has("scared")
+  ) {
     return ARCHETYPES["overthink-er"];
   }
 
-  // Has 1-5 ideas, just scared → Overthink-er
-  if (ideas === "one-five" && blocker === "scared") {
-    return ARCHETYPES["overthink-er"];
-  }
-
-  // Has money blockers → Almost Operator
-  if (blocker === "money") {
+  // Money is the only blocker → Almost Operator
+  if (blockers.has("money") && blockers.size === 1) {
     return ARCHETYPES["almost-operator"];
   }
 
