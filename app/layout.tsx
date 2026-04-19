@@ -69,15 +69,26 @@ export default function RootLayout({
             Fan-made project inspired by Sam Parr / My First Million.
             Not affiliated with or endorsed by Sam Parr.
           </p>
-          <a
-            href="https://uncle-shaan.vercel.app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block mt-2 text-[0.55rem] tracking-[0.2em] uppercase transition-colors hover:underline"
-            style={{ fontFamily: "var(--type)", color: "var(--gold)" }}
-          >
-            See also: Uncle Shaan →
-          </a>
+          <div className="flex justify-center gap-4 mt-2">
+            <a
+              href="https://uncle-shaan.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[0.55rem] tracking-[0.2em] uppercase transition-colors hover:underline"
+              style={{ fontFamily: "var(--type)", color: "var(--gold)" }}
+            >
+              Uncle Shaan →
+            </a>
+            <a
+              href="https://mfm-pulse.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[0.55rem] tracking-[0.2em] uppercase transition-colors hover:underline"
+              style={{ fontFamily: "var(--type)", color: "var(--ink-ghost)" }}
+            >
+              MFM Pulse →
+            </a>
+          </div>
         </footer>
       </body>
     </html>
